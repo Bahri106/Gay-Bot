@@ -1,4 +1,4 @@
-import fs from 'fs'
+
 let handler = async (m, { conn }) => {
   let stats = Object.entries(db.data.stats).map(([key, val]) => {
     let name = Array.isArray(plugins[key]?.help) ? plugins[key]?.help?.join('\n• ') : plugins[key]?.help || key 
@@ -6,23 +6,27 @@ let handler = async (m, { conn }) => {
     return { name, ...val }
   })
   stats = stats.sort((a, b) => b.total - a.total)
-  let txt = stats.slice(0, 15).map(({ name, total, last }, idx) => {
+  let txt = stats.slice(0, 10).map(({ name, total, last }, idx) => {
+    if (name.includes('-') && name.endsWith('.js')) name = name.split('-')[1].replace('.js', '')
     return `${htki} ${idx + 1} ${htka}
 *${htjava} C M D ${htjava}*
 ${name}
 
 *${htjava} H I T ${htjava}*
-${total}`
-  }).join`\n\n`
+${total}
+
+*${htjava} T I M E ${htjava}*
+${getTime(last)}
+`}).join`\n\n`
   conn.send2ButtonDoc(m.chat, txt, author, '🔖 Tes', 'tes', 'ℹ️ Menu', '.menu', fpayment, adReply)
 }
 handler.help = ['dashboard']
 handler.tags = ['info']
 handler.command = /^(db|dashboard)$/i
 
-export default handler 
-	
-async function parseMs(ms) {
+export default handler
+
+export function parseMs(ms) {
   if (typeof ms !== 'number') throw 'Parameter must be filled with number'
   return {
     days: Math.trunc(ms / 86400000),
@@ -31,4 +35,14 @@ async function parseMs(ms) {
     seconds: Math.trunc(ms / 1000) % 60,
     milliseconds: Math.trunc(ms) % 1000,
     microseconds: Math.trunc(ms * 1000) % 1000,
-    nanoseconds@ Math.trunc(ms * 1e6) % 3
+    nanoseconds: Math.trunc(ms * 1e6) % 1000
+  }
+}
+
+export function getTime(ms) {
+  let now = parseMs(+new Date() - ms)
+  if (now.days) return `${now.days} Hari yang lalu`
+  else if (now.hours) return `${now.hours} Jam yang lalu`
+  else if (now.minutes) return `${now.minutes} Menit yang lalu`
+  else return `Barusan`
+}
