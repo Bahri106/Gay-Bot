@@ -1,23 +1,28 @@
+import fs from 'fs'
 let handler = async (m, { conn }) => {
   let stats = Object.entries(db.data.stats).map(([key, val]) => {
-    let name = Array.isArray(plugins[key]?.help) ? plugins[key]?.help?.join(' & ') : plugins[key]?.help || key 
+    let name = Array.isArray(plugins[key]?.help) ? plugins[key]?.help?.join('\n• ') : plugins[key]?.help || key 
     if (/exec/.test(name)) return
     return { name, ...val }
   })
   stats = stats.sort((a, b) => b.total - a.total)
-  let txt = stats.slice(0, 10).map(({ name, total, last }, idx) => {
-    if (name.includes('-') && name.endsWith('.js')) name = name.split('-')[1].replace('.js', '')
-    return `(${idx + 1})\nCommand : *${name}*\nHit : *${total}x*\nLast Used : *${getTime(last)}*`
+  let txt = stats.slice(0, 15).map(({ name, total, last }, idx) => {
+    return `${htki} ${idx + 1} ${htka}
+*${htjava} C M D ${htjava}*
+${name}
+
+*${htjava} H I T ${htjava}*
+${total}`
   }).join`\n\n`
-  m.reply(`Dashboard *${conn.user.name}*\n\n${txt}`)
+  conn.send2ButtonDoc(m.chat, txt, author, '🔖 Tes', 'tes', 'ℹ️ Menu', '.menu', fpayment, adReply)
 }
 handler.help = ['dashboard']
-handler.tags = ['misc']
-handler.command = /^dashboard$/i
+handler.tags = ['info']
+handler.command = /^(db|dashboard)$/i
 
-export default handler
-
-export function parseMs(ms) {
+export default handler 
+	
+async function parseMs(ms) {
   if (typeof ms !== 'number') throw 'Parameter must be filled with number'
   return {
     days: Math.trunc(ms / 86400000),
@@ -26,14 +31,4 @@ export function parseMs(ms) {
     seconds: Math.trunc(ms / 1000) % 60,
     milliseconds: Math.trunc(ms) % 1000,
     microseconds: Math.trunc(ms * 1000) % 1000,
-    nanoseconds: Math.trunc(ms * 1e6) % 1000
-  }
-}
-
-export function getTime(ms) {
-  let now = parseMs(+new Date() - ms)
-  if (now.days) return `${now.days} days ago`
-  else if (now.hours) return `${now.hours} hours ago`
-  else if (now.minutes) return `${now.minutes} minutes ago`
-  else return `a few seconds ago`
-}
+    nanoseconds@ Math.trunc(ms * 1e6) % 3
